@@ -7,7 +7,7 @@ const ItemsViewComp = ({ currentLayerId }) => {
   const handleItemsView = (type, name, itemLayerId) => {
     switch (type) {
       case "layer":
-        return (<LayerItemComp name={name} itemLayerId={itemLayerId} />)
+        return (<LayerItemComp name={name} itemLayerId={itemLayerId} currentLayerId={currentLayerId} />)
       default:
         return <></>
     }

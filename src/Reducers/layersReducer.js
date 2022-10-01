@@ -4,8 +4,60 @@ const initialState = {
   layerStructure: {
     MainLayer: {
       data: null,
+    },
+  }
+}
+
+const collectDataForDelete = (state, layerIdToDel) => {
+  let layersIdToDelArr = [layerIdToDel];
+  let layerToDelData = state.layerStructure[layerIdToDel].data;
+  let finalLayersToDelArr = [];
+  if (layerToDelData !== null) {
+    Object.keys(layerToDelData).map((key) => {
+      if (layerToDelData[key].type === "layer") {
+        layersIdToDelArr.push(layerToDelData[key].layerId)
+      }
+    })
+    finalLayersToDelArr = layersIdToDelArr;
+    //while start
+    while (layersIdToDelArr.length !== 0) {
+      let newArr = [];
+      layersIdToDelArr.map((item) => {
+        if (item !== layerIdToDel) {
+          layerToDelData = state.layerStructure[item].data;
+          if (layerToDelData !== null) {
+            Object.keys(layerToDelData).map((key) => {
+              if (layerToDelData[key].type === "layer") {
+                newArr.push(layerToDelData[key].layerId)
+              }
+            })
+          }
+        }
+      })
+      layersIdToDelArr = newArr;
+      newArr.map((item) => {
+        finalLayersToDelArr.push(item)
+      })
     }
-  },
+  } else {
+    finalLayersToDelArr = layersIdToDelArr;
+  }
+  return finalLayersToDelArr
+}
+
+const startDelLayers = (state, layerIdToDel, finalLayersToDelArr) => {
+  let index = null;
+  Object.keys(state.layerStructure.MainLayer.data).map((key) => {
+    if (state.layerStructure.MainLayer.data[key].layerId === finalLayersToDelArr[0]) {
+      index = key
+    }
+  })
+  if (index !== null) {
+    delete state.layerStructure.MainLayer.data[index]
+  }
+  finalLayersToDelArr.map((item) => {
+    delete state.layerStructure[item];
+  })
 }
 
 const layersReducer = createSlice({
@@ -39,8 +91,15 @@ const layersReducer = createSlice({
         }
       }
     },
+    deleteLayerAction: (state, action) => {
+      // args : layerIdToDel
+      let layerIdToDel = action.payload
+      let finalLayersToDelArr = collectDataForDelete(state, layerIdToDel);
+      console.log(finalLayersToDelArr);
+      startDelLayers(state, layerIdToDel, finalLayersToDelArr);
+    }
   }
 })
 
-export const { addLayerAction } = layersReducer.actions;
+export const { addLayerAction, deleteLayerAction } = layersReducer.actions;
 export default layersReducer.reducer;

@@ -8,7 +8,6 @@ import { useParams } from "react-router-dom";
 import BackBtnComp from '../../components/BackBtnComp/BackBtnComp';
 const LayerViewPage = () => {
   const pageData = useParams();
-  console.log(pageData)
   return (
     <IonPage>
       <IonHeader>
