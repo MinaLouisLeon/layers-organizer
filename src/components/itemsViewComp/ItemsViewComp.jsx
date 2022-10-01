@@ -1,13 +1,16 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import LayerItemComp from './LayerItemComp/LayerItemComp';
+import TodoItemComp from './TodoItemComp/TodoItemComp';
 
 const ItemsViewComp = ({ currentLayerId }) => {
   const itemsObj = useSelector(state => state.layersReducer.layerStructure[currentLayerId].data);
-  const handleItemsView = (type, name, itemLayerId) => {
-    switch (type) {
+  const handleItemsView = (item) => {
+    switch (item.type) {
       case "layer":
-        return (<LayerItemComp name={name} itemLayerId={itemLayerId} currentLayerId={currentLayerId} />)
+        return (<LayerItemComp name={item.name} itemLayerId={item.layerId} currentLayerId={currentLayerId} />)
+      case "todo":
+        return (<TodoItemComp name={item.name} currentLayerId={currentLayerId} isChecked={item.isChecked} />)
       default:
         return <></>
     }
@@ -17,7 +20,7 @@ const ItemsViewComp = ({ currentLayerId }) => {
       {/* layer item */}
       {itemsObj && Object.keys(itemsObj).map((key) => {
         return (<div key={key}>
-          {handleItemsView(itemsObj[key].type, itemsObj[key].name, itemsObj[key].layerId)}
+          {handleItemsView(itemsObj[key])}
         </div>)
       })}
     </div>

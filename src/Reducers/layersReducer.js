@@ -96,9 +96,54 @@ const layersReducer = createSlice({
       let layerIdToDel = action.payload
       let finalLayersToDelArr = collectDataForDelete(state, layerIdToDel);
       startDelLayers(state, layerIdToDel, finalLayersToDelArr);
+    },
+    addTodoAction: (state, action) => {
+      //args : todoName,currentLayerId
+      let todoName = action.payload.todoName;
+      let currentLayerId = action.payload.currentLayerId;
+      let length = 0;
+      let testObj = state.layerStructure[currentLayerId].data
+      if (testObj !== null) {
+        length = Object.keys(state.layerStructure[currentLayerId].data).length
+      }
+      state.layerStructure[currentLayerId].data = {
+        ...state.layerStructure[currentLayerId].data,
+        [length]: {
+          name: todoName,
+          isChecked: false,
+          type: "todo"
+        }
+      }
+    },
+    checkTodoAction: (state, action) => {
+      //args : todoName,isChecked,currentLayerId
+      let todoName = action.payload.todoName;
+      let isChecked = action.payload.isChecked;
+      let currentLayerId = action.payload.currentLayerId;
+      let testObj = state.layerStructure[currentLayerId].data
+      let index = null;
+      Object.keys(testObj).map((key) => {
+        if (testObj[key].type === "todo" && testObj[key].name === todoName) {
+          index = key;
+        }
+      })
+      state.layerStructure[currentLayerId].data[index].isChecked = isChecked;
+    },
+    deleteTodoAction: (state, action) => {
+      //args : todoName,currentLayerId
+      let todoName = action.payload.todoName;
+      let currentLayerId = action.payload.currentLayerId;
+      let testObj = state.layerStructure[currentLayerId].data;
+      let index = null;
+      Object.keys(testObj).map((key) => {
+        if (testObj[key].type === "todo" && testObj[key].name === todoName) {
+          index = key
+        }
+      })
+      delete state.layerStructure[currentLayerId].data[index]
     }
   }
 })
 
-export const { addLayerAction, deleteLayerAction } = layersReducer.actions;
+export const { addLayerAction, deleteLayerAction, addTodoAction, checkTodoAction, deleteTodoAction } = layersReducer.actions;
 export default layersReducer.reducer;
