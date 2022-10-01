@@ -95,7 +95,6 @@ const layersReducer = createSlice({
       // args : layerIdToDel
       let layerIdToDel = action.payload
       let finalLayersToDelArr = collectDataForDelete(state, layerIdToDel);
-      console.log(finalLayersToDelArr);
       startDelLayers(state, layerIdToDel, finalLayersToDelArr);
     }
   }
