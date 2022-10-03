@@ -15,7 +15,7 @@ const LayerItemComp = ({ name, itemLayerId, currentLayerId }) => {
   }
   return (
     <div className='ma3'>
-      <IonItemSliding className="br4 shadow-2 pt1 pb1">
+      <IonItemSliding className="br4 shadow-2">
         <IonItem lines='none' button onClick={() => handleItemClicked()}>
           <IonIcon slot='start' color='warning' icon={folder} />
           <IonLabel>{name}</IonLabel>

@@ -3,16 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   layerStructure: {
     MainLayer: {
-      data: null,
+      data: {},
     },
-  }
+  },
+  didExist: false
 }
 
 const collectDataForDelete = (state, layerIdToDel) => {
   let layersIdToDelArr = [layerIdToDel];
   let layerToDelData = state.layerStructure[layerIdToDel].data;
   let finalLayersToDelArr = [];
-  if (layerToDelData !== null) {
+  if (layerToDelData !== null && layerToDelData !== undefined) {
     Object.keys(layerToDelData).map((key) => {
       if (layerToDelData[key].type === "layer") {
         layersIdToDelArr.push(layerToDelData[key].layerId)
@@ -25,7 +26,7 @@ const collectDataForDelete = (state, layerIdToDel) => {
       layersIdToDelArr.map((item) => {
         if (item !== layerIdToDel) {
           layerToDelData = state.layerStructure[item].data;
-          if (layerToDelData !== null) {
+          if (layerToDelData !== null && layerToDelData !== undefined) {
             Object.keys(layerToDelData).map((key) => {
               if (layerToDelData[key].type === "layer") {
                 newArr.push(layerToDelData[key].layerId)
@@ -64,30 +65,38 @@ const layersReducer = createSlice({
   name: "layersReducer",
   initialState,
   reducers: {
+    toggleDidExistAction: (state, action) => {
+      state.didExist = !state.didExist;
+    },
     addLayerAction: (state, action) => {
       //args : addedLayerName,currentLayerId
       let addedLayerName = action.payload.addedLayerName;
       let currentLayerId = action.payload.currentLayerId;
       let testObj = state.layerStructure[currentLayerId].data
-      let length = null;
-      if (testObj === null) {
-        length = 0;
-      } else {
-        length = Object.keys(state.layerStructure[currentLayerId].data).length;
-      }
-      state.layerStructure = {
-        ...state.layerStructure,
-        [`${currentLayerId}-${addedLayerName}`]: {
-          data: null
+      let layerExist = false;
+      let objkey = `layer-${addedLayerName}`
+      if (testObj !== null && testObj !== undefined) {
+        if (Object.keys(testObj).includes(objkey)) {
+          layerExist = true;
         }
       }
-      state.layerStructure[currentLayerId].data = {
-        ...state.layerStructure[currentLayerId].data,
-        [length]: {
-          name: addedLayerName,
-          type: "layer",
-          props: null,
-          layerId: `${currentLayerId}-${addedLayerName}`
+      if (layerExist) {
+        state.didExist = true;
+      } else {
+        state.layerStructure = {
+          ...state.layerStructure,
+          [`${currentLayerId}-${addedLayerName}`]: {
+            data: null
+          }
+        }
+        state.layerStructure[currentLayerId].data = {
+          ...state.layerStructure[currentLayerId].data,
+          [objkey]: {
+            name: addedLayerName,
+            type: "layer",
+            props: null,
+            layerId: `${currentLayerId}-${addedLayerName}`
+          }
         }
       }
     },
@@ -101,17 +110,24 @@ const layersReducer = createSlice({
       //args : todoName,currentLayerId
       let todoName = action.payload.todoName;
       let currentLayerId = action.payload.currentLayerId;
-      let length = 0;
+      let objkey = `todo-${todoName}`
       let testObj = state.layerStructure[currentLayerId].data
-      if (testObj !== null) {
-        length = Object.keys(state.layerStructure[currentLayerId].data).length
+      let todoExist = false;
+      if (testObj !== null && testObj !== undefined) {
+        if (Object.keys(testObj).includes(objkey)) {
+          todoExist = true;
+        }
       }
-      state.layerStructure[currentLayerId].data = {
-        ...state.layerStructure[currentLayerId].data,
-        [length]: {
-          name: todoName,
-          isChecked: false,
-          type: "todo"
+      if (todoExist) {
+        state.didExist = true;
+      } else {
+        state.layerStructure[currentLayerId].data = {
+          ...state.layerStructure[currentLayerId].data,
+          [objkey]: {
+            name: todoName,
+            isChecked: false,
+            type: "todo"
+          }
         }
       }
     },
@@ -133,17 +149,86 @@ const layersReducer = createSlice({
       //args : todoName,currentLayerId
       let todoName = action.payload.todoName;
       let currentLayerId = action.payload.currentLayerId;
+      let objkey = `todo-${todoName}`;
+      delete state.layerStructure[currentLayerId].data[objkey]
+    },
+    addBudgetAction: (state, action) => {
+      // args : budgetName,currentLayerId
+      let budgetName = action.payload.budgetName;
+      let currentLayerId = action.payload.currentLayerId;
+      let objkey = `budget-${budgetName}`;
+      let budgetExist = false;
       let testObj = state.layerStructure[currentLayerId].data;
-      let index = null;
-      Object.keys(testObj).map((key) => {
-        if (testObj[key].type === "todo" && testObj[key].name === todoName) {
-          index = key
+      if (testObj !== null && testObj !== undefined) {
+        budgetExist = Object.keys(testObj).includes(objkey)
+      }
+      if (budgetExist) {
+        state.didExist = !state.didExist
+      } else {
+        state.layerStructure[currentLayerId].data = {
+          ...state.layerStructure[currentLayerId].data,
+          [objkey]: {
+            name: budgetName,
+            type: "budget",
+            data: null,
+            totalBudget: 0
+          }
         }
-      })
-      delete state.layerStructure[currentLayerId].data[index]
+      }
+    },
+    deleteBudgetAction: (state, action) => {
+      // args : name , currentLayerId
+      let budgetName = action.payload.name;
+      let currentLayerId = action.payload.currentLayerId;
+      let objkey = `budget-${budgetName}`;
+      delete state.layerStructure[currentLayerId].data[objkey]
+    },
+    addIncomeExpensAction: (state, action) => {
+      //args : currentLayerId,budgetName,amountType,amountName,amountValue
+      let currentLayerId = action.payload.currentLayerId;
+      let budgetName = action.payload.budgetName;
+      let amountType = action.payload.amountType;
+      let amountName = action.payload.amountName;
+      let amountValue = action.payload.amountValue;
+      let totalBudget = state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget
+      let amountNameExist = false;
+      let testObj = state.layerStructure[currentLayerId].data[`budget-${budgetName}`].data;
+      if (testObj !== null && testObj !== undefined) {
+        amountNameExist = Object.keys(testObj).includes(`${amountType}-${amountName}`);
+      }
+      if (amountNameExist) {
+        state.didExist = true;
+      } else {
+        state.layerStructure[currentLayerId].data[`budget-${budgetName}`].data = {
+          ...state.layerStructure[currentLayerId].data[`budget-${budgetName}`].data,
+          [`${amountType}-${amountName}`]: {
+            type: amountType,
+            name: amountName,
+            amount: amountValue
+          }
+        }
+        if (amountType === "Income") {
+          state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget = parseFloat(totalBudget) + parseFloat(amountValue);
+        } else {
+          state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget = parseFloat(totalBudget) - parseFloat(amountValue);
+        }
+      }
+    },
+    deleteIncomeExpensAction: (state, action) => {
+
     }
   }
 })
 
-export const { addLayerAction, deleteLayerAction, addTodoAction, checkTodoAction, deleteTodoAction } = layersReducer.actions;
+export const {
+  toggleDidExistAction,
+  addLayerAction,
+  deleteLayerAction,
+  addTodoAction,
+  checkTodoAction,
+  deleteTodoAction,
+  addBudgetAction,
+  deleteBudgetAction,
+  addIncomeExpensAction
+} = layersReducer.actions;
 export default layersReducer.reducer;

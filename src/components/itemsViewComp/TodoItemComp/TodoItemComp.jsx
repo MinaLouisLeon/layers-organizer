@@ -13,7 +13,7 @@ const TodoItemComp = ({ name, currentLayerId, isChecked }) => {
             isChecked: e.detail.checked,
             currentLayerId: currentLayerId
           }))} />
-          <IonLabel>{name}</IonLabel>
+          <IonLabel>{isChecked ? <s>{name}</s> : name}</IonLabel>
         </IonItem>
         <IonItemOptions side='end'>
           <IonItemOption color="danger" onClick={() => {
