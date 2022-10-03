@@ -215,7 +215,19 @@ const layersReducer = createSlice({
       }
     },
     deleteIncomeExpensAction: (state, action) => {
-
+      // args : currentLayerId,budgetName,amountType,amountName,amountValue
+      let currentLayerId = action.payload.currentLayerId;
+      let budgetName = action.payload.budgetName;
+      let amountType = action.payload.amountType;
+      let amountName = action.payload.amountName;
+      let amountValue = action.payload.amountValue;
+      let totalBudget = state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget;
+      delete state.layerStructure[currentLayerId].data[`budget-${budgetName}`].data[`${amountType}-${amountName}`];
+      if (amountType === "Income") {
+        state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget = parseFloat(totalBudget) - parseFloat(amountValue);
+      } else {
+        state.layerStructure[currentLayerId].data[`budget-${budgetName}`].totalBudget = parseFloat(totalBudget) + parseFloat(amountValue);
+      }
     }
   }
 })
@@ -229,6 +241,7 @@ export const {
   deleteTodoAction,
   addBudgetAction,
   deleteBudgetAction,
-  addIncomeExpensAction
+  addIncomeExpensAction,
+  deleteIncomeExpensAction
 } = layersReducer.actions;
 export default layersReducer.reducer;
