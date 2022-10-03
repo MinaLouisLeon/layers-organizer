@@ -1,7 +1,7 @@
 {
-  "name": "layers-organizer",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react"
+ "name": "Layer Organizer",
+ "integrations": {
+  "capacitor": {}
+ },
+ "type": "react"
 }
