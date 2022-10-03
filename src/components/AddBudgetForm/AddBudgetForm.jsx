@@ -19,7 +19,7 @@ const AddBudgetForm = ({ onDidDismiss, currentLayerId }) => {
       budgetName: name,
       currentLayerId: currentLayerId
     }));
-    setName("")
+    setName("");
     onDidDismiss();
   }
   return (
@@ -33,7 +33,7 @@ const AddBudgetForm = ({ onDidDismiss, currentLayerId }) => {
             value={name}
             onIonChange={(e) => setName(e.detail.value)}
           />
-        </IonItem>;
+        </IonItem>
         <FormBtns className="ma1">
           <IonButton fill='clear' color="danger" type='button' onClick={() => {
             setName("");
